@@ -306,7 +306,7 @@ except Exception as e:
             # Update final status
             job_status[job_id]["status"] = "completed"
             job_status[job_id]["progress"] = 100
-            job_status[job_id]["message"] = "Analysis completed successfully!"
+            job_status[job_id]["message"] = "Analysis completed successfully done!"
         else:
             raise Exception("Results file not found")
 
