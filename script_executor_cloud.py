@@ -136,9 +136,22 @@ async def run_euromod_analysis_background(job_id: str, base_system: str, reform_
         job_status[job_id]["message"] = "Setting up EUROMOD environment..."
 
         # Get environment variables for paths
-        model_path = os.getenv("EUROMOD_MODEL_PATH", "/app/euromod")
+        model_path = os.getenv("EUROMOD_MODEL_PATH", "euromod_data")
         data_path = os.getenv("EUROMOD_DATA_PATH",
-                              "/app/euromod/Input/LU_training_data.txt")
+                              "euromod_data/Input/LU_training_data.txt")
+
+        # Debug: Print file paths and check if files exist
+        print(f"DEBUG: Model path: {model_path}")
+        print(f"DEBUG: Data path: {data_path}")
+        print(f"DEBUG: Data file exists: {os.path.exists(data_path)}")
+        print(f"DEBUG: Current working directory: {os.getcwd()}")
+        print(f"DEBUG: Directory contents: {os.listdir('.')}")
+        if os.path.exists('euromod_data'):
+            print(
+                f"DEBUG: euromod_data contents: {os.listdir('euromod_data')}")
+            if os.path.exists('euromod_data/Input'):
+                print(
+                    f"DEBUG: Input contents: {os.listdir('euromod_data/Input')}")
 
         # Create temporary script file
         script_filename = f"temp_script_{job_id}.py"
@@ -306,7 +319,7 @@ except Exception as e:
             # Update final status
             job_status[job_id]["status"] = "completed"
             job_status[job_id]["progress"] = 100
-            job_status[job_id]["message"] = "Analysis completed successfully done!"
+            job_status[job_id]["message"] = "Analysis completed successfully!"
         else:
             raise Exception("Results file not found")
 
