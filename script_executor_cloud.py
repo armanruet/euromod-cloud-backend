@@ -22,13 +22,14 @@ app = FastAPI(title="EUROMOD Cloud API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://*.github.io",  # GitHub Pages
+        "https://armanruet.github.io",  # Your specific GitHub Pages URL
+        "https://*.github.io",  # All GitHub Pages
         "http://localhost:3000",  # Local development
         "http://localhost:8000",  # Local development
         "*"  # Allow all origins for testing (remove in production)
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -331,5 +332,7 @@ except Exception as e:
 
 if __name__ == "__main__":
     import uvicorn
+    # Railway sets PORT environment variable
     port = int(os.getenv("PORT", 8001))
+    print(f"Starting EUROMOD Cloud API on port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
