@@ -175,12 +175,25 @@ class EuromodStatisticsFixed:
     def calculate_direct_taxes(self, system: str) -> float:
         """Calculate total direct taxes for a given system"""
         try:
-            tax_col = f'{{system}}_direct_tax'
-            if tax_col in self.data.columns:
-                return (self.data[tax_col] * self.weights).sum()
-            else:
-                # Fallback calculation if specific column doesn't exist
-                return self.data.get(f'{{system}}_income_tax', pd.Series([0])).sum()
+            # Try different possible column names
+            possible_tax_cols = [
+                f'{{system}}_direct_tax',
+                f'{{system}}_income_tax',
+                f'{{system}}_tax',
+                'direct_tax',
+                'income_tax'
+            ]
+            
+            for col in possible_tax_cols:
+                if col in self.data.columns:
+                    result = (self.data[col] * self.weights).sum()
+                    print(f"DEBUG: Found tax column {{col}} for {{system}}: {{result}}")
+                    return result
+            
+            # If no tax column found, return 0
+            print(f"DEBUG: No tax column found for {{system}}, returning 0")
+            return 0.0
+            
         except Exception as e:
             print(f"Error calculating direct taxes for {{system}}: {{e}}")
             return 0.0
@@ -188,12 +201,26 @@ class EuromodStatisticsFixed:
     def calculate_total_household_market_incomes(self, system: str) -> float:
         """Calculate total household market incomes for a given system"""
         try:
-            income_col = f'{{system}}_market_income'
-            if income_col in self.data.columns:
-                return (self.data[income_col] * self.weights).sum()
-            else:
-                # Fallback calculation
-                return self.data.get(f'{{system}}_gross_income', pd.Series([0])).sum()
+            # Try different possible column names
+            possible_income_cols = [
+                f'{{system}}_market_income',
+                f'{{system}}_gross_income',
+                f'{{system}}_income',
+                'market_income',
+                'gross_income',
+                'income'
+            ]
+            
+            for col in possible_income_cols:
+                if col in self.data.columns:
+                    result = (self.data[col] * self.weights).sum()
+                    print(f"DEBUG: Found income column {{col}} for {{system}}: {{result}}")
+                    return result
+            
+            # If no income column found, return 0
+            print(f"DEBUG: No income column found for {{system}}, returning 0")
+            return 0.0
+            
         except Exception as e:
             print(f"Error calculating market incomes for {{system}}: {{e}}")
             return 0.0
@@ -216,6 +243,11 @@ try:
     MODEL_PATH = "{model_path}"
     data = pd.read_csv("{data_path}", sep="\\t")
     
+    # Debug: Print data info
+    print(f"DEBUG: Data shape: {{data.shape}}")
+    print(f"DEBUG: Data columns: {{list(data.columns)}}")
+    print(f"DEBUG: Data head: {{data.head()}}")
+    
     update_progress(40, "Initializing EUROMOD statistics...")
     
     # Initialize statistics calculator
@@ -236,6 +268,7 @@ try:
     update_progress(90, "Finalizing results...")
     
     # Prepare results
+    current_time = datetime.now()
     results = {{
         'direct_taxes_baseline': float(direct_taxes_baseline),
         'direct_taxes_reform': float(direct_taxes_reform),
@@ -243,9 +276,11 @@ try:
         'total_household_market_incomes_reform': float(total_household_market_incomes_reform),
         'base_system': "{base_system}",
         'reform_system': "{reform_system}",
-        'timestamp': datetime.now().isoformat(),
+        'timestamp': current_time.isoformat(),
         'status': 'success'
     }}
+    
+    print(f"DEBUG: Results prepared: {{results}}")
     
     update_progress(100, "Analysis completed successfully!")
     
@@ -349,4 +384,3 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8001))
     print(f"Starting EUROMOD Cloud API on port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
-# Force Railway redeploy
