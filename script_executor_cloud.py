@@ -136,9 +136,9 @@ async def run_euromod_analysis_background(job_id: str, base_system: str, reform_
         job_status[job_id]["message"] = "Setting up EUROMOD environment..."
 
         # Get environment variables for paths
-        model_path = os.getenv("EUROMOD_MODEL_PATH", "euromod_data")
+        model_path = os.getenv("EUROMOD_MODEL_PATH", "/app/euromod_data")
         data_path = os.getenv("EUROMOD_DATA_PATH",
-                              "euromod_data/Input/LU_training_data.txt")
+                              "/app/euromod_data/Input/LU_training_data.txt")
 
         # Debug: Print file paths and check if files exist
         print(f"DEBUG: Model path: {model_path}")
@@ -384,4 +384,3 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8001))
     print(f"Starting EUROMOD Cloud API on port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
-# Restart service
